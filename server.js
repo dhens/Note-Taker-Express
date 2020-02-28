@@ -25,34 +25,46 @@ app.get('/api/notes', (req, res) => {
 app.post('/api/notes', (req, res) => {
     req.body.id = uniqid();
     const newNote = req.body;
-    const data = readDatabase();
-    // Error is thrown if you delete all notes then try to set savedNotes equal to db.json data 
-    // This handles an empty db.json file
-    let savedNotes;
-    try {
-        savedNotes = JSON.parse(data);
-    }
-    catch {
-        savedNotes = []
-    }
-    savedNotes.push(newNote);
+    
+    fs.readFile(path.join(__dirname + '/db/db.json'), (err, data) => {
+        // Error is thrown if you delete all notes then try to set savedNotes equal to db.json data 
+        // This handles an empty db.json file
+        let savedNotes;
+        try {
+            savedNotes = JSON.parse(data);
+        }
+        catch {
+            savedNotes = [];
+        }
+        savedNotes.push(newNote);
 
-    fs.writeFile(__dirname + '/db/db.json', JSON.stringify(savedNotes), err => {
-        if (err) throw err;
-        console.log('Added new note to db.json')
+        fs.writeFile(__dirname + '/db/db.json', JSON.stringify(savedNotes), err => {
+            if (err) throw err;
+            console.log('New note added');
 
+        });
     });
 });
 
 app.delete('/api/notes/:id', (req, res) => {
-    const data = readDatabase();
-});
-
-function readDatabase() {
     fs.readFile(path.join(__dirname + '/db/db.json'), (err, data) => {
-        return data;
+        const savedNotes = JSON.parse(data);
+
+        //
+        const newNotes = savedNotes.filter(item => {
+            return item.id !== req.params.id;
+        });
+
+        fs.writeFile(__dirname + '/db/db.json', JSON.stringify(newNotes), err => {
+            if (err) throw err;
+            console.log('Added new note to db.json')
+
+        });
+
+        res.send(`Note ${req.params.id} deleted`);
     });
-}
+
+});
 
 app.listen(port, () => {
     console.log(`Server started on port ${port}`);
