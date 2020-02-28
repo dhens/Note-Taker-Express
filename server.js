@@ -38,7 +38,8 @@ app.post('/api/notes', (req, res) => {
         }
         savedNotes.push(newNote);
         writeDatabase(savedNotes);
-        res.send(`Added note with id ${req.body.id}`)
+        console.log(`Added note with id ${req.body.id}`);
+        res.send(`Added note with id ${req.body.id}`);
     });
 });
 
@@ -51,6 +52,7 @@ app.delete('/api/notes/:id', (req, res) => {
             return item.id !== req.params.id;
         });
         writeDatabase(newNotes);
+        console.log(`${req.params.id} deleted`)
         res.send(`Note ${req.params.id} deleted`);
     });
 
@@ -59,7 +61,6 @@ app.delete('/api/notes/:id', (req, res) => {
 function writeDatabase(data) {
     fs.writeFile(__dirname + '/db/db.json', JSON.stringify(data), err => {
         if (err) throw err;
-        console.log('Database updated')
     });
 }
 
