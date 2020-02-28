@@ -37,12 +37,8 @@ app.post('/api/notes', (req, res) => {
             savedNotes = [];
         }
         savedNotes.push(newNote);
-
-        fs.writeFile(__dirname + '/db/db.json', JSON.stringify(savedNotes), err => {
-            if (err) throw err;
-            console.log('New note added');
-
-        });
+        writeDatabase(savedNotes);
+        res.send(`Added note with id ${req.body.id}`)
     });
 });
 
@@ -50,21 +46,22 @@ app.delete('/api/notes/:id', (req, res) => {
     fs.readFile(path.join(__dirname + '/db/db.json'), (err, data) => {
         const savedNotes = JSON.parse(data);
 
-        //
+        // Create new db without the note with the ID we specify
         const newNotes = savedNotes.filter(item => {
             return item.id !== req.params.id;
         });
-
-        fs.writeFile(__dirname + '/db/db.json', JSON.stringify(newNotes), err => {
-            if (err) throw err;
-            console.log('Added new note to db.json')
-
-        });
-
+        writeDatabase(newNotes);
         res.send(`Note ${req.params.id} deleted`);
     });
 
 });
+
+function writeDatabase(data) {
+    fs.writeFile(__dirname + '/db/db.json', JSON.stringify(data), err => {
+        if (err) throw err;
+        console.log('Database updated')
+    });
+}
 
 app.listen(port, () => {
     console.log(`Server started on port ${port}`);
