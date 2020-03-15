@@ -32,8 +32,7 @@ app.post('/api/notes', (req, res) => {
         let savedNotes;
         try {
             savedNotes = JSON.parse(data);
-        }
-        catch {
+        } catch {
             savedNotes = [];
         }
         savedNotes.push(newNote);
